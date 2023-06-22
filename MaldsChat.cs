@@ -10,7 +10,6 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using OpenAI_API;
-using System.Text;
 
 namespace MaldsChat
 {
@@ -84,11 +83,6 @@ namespace MaldsChat
             APIAuthentication OPENAI_KEY = Environment.GetEnvironmentVariable("openAiApiKey");
             OpenAIAPI api = new OpenAIAPI(OPENAI_KEY);
             return api;
-        }
-
-        private static string UnicodeString(string text)
-        {
-            return Encoding.UTF8.GetString(Encoding.ASCII.GetBytes(text));
         }
     }
 }
