@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -12,13 +13,14 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using OpenAI_API;
 using System.Text;
-using System.Linq;
-using System.Net.Http;
+using OpenAI_API.Chat;
 
 namespace MaldsChat
 {
     public static class MaldsChat
     {
+        private static Dictionary<string, Conversation> Conversations = new Dictionary<string, Conversation>();
+
         [FunctionName("maldsChat")]
         public static async Task<IActionResult> Update(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
@@ -31,6 +33,8 @@ namespace MaldsChat
 
             if (update.Type == UpdateType.Message)
             {
+                string userName = update.Message.From.FirstName;
+
                 if (update.Message.Text.Contains("/start"))
                 {
                     await telegramClient.SendTextMessageAsync(
@@ -39,18 +43,44 @@ namespace MaldsChat
                     replyToMessageId: update.Message.MessageId
                     );
                 }
-                else
+                else if (update.Message.Text.Contains("/new"))
                 {
-                    var chat = GetOpenAiClient().Chat.CreateConversation();
-                    chat.AppendUserInput(update.Message.Text);
-                    string response = await chat.GetResponseFromChatbot();
+                    // Create a new conversation and store it in the dictionary
+                    Conversations[userName] = GetOpenAiClient().Chat.CreateConversation();
 
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
-                        text: $"{response}",
+                        text: $"New conversation created. Please ask your question.",
                         parseMode: ParseMode.MarkdownV2,
                         replyToMessageId: update.Message.MessageId
                         );
+                }
+                else
+                {
+                    // If there's an ongoing conversation, append the user's message to it
+                    if (Conversations.TryGetValue(userName, out var conversation))
+                    {
+                        conversation.AppendUserInputWithName(userName, update.Message.Text);
+                        var responseObject = await conversation.GetResponseFromChatbotAsync();
+                        string responseText = await conversation.GetResponseFromChatbotAsync();
+
+                        await telegramClient.SendTextMessageAsync(
+                            chatId: update.Message.Chat,
+                            text: $"{responseText}",
+                            parseMode: ParseMode.MarkdownV2,
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
+                    else
+                    {
+                        // If there's no ongoing conversation, ask the user to start a new one
+                        await telegramClient.SendTextMessageAsync(
+                            chatId: update.Message.Chat,
+                            text: $"Please start a new conversation with the /new command.",
+                            parseMode: ParseMode.MarkdownV2,
+                            replyToMessageId: update.Message.MessageId
+                            );
+                    }
                 }
             }
             return new OkResult();
@@ -62,24 +92,22 @@ namespace MaldsChat
 
             if (token is null)
             {
-                throw new ArgumentException("Token not found. Please set token as environment variable");
+                throw new ArgumentException("Token not found. Please set tokenin the Environment Variables.");
             }
 
-            var telegramClient = new TelegramBotClient(token);
-
-            return telegramClient;
+            return new TelegramBotClient(token);
         }
 
         private static OpenAIAPI GetOpenAiClient()
         {
-            APIAuthentication OPENAI_KEY = Environment.GetEnvironmentVariable("openAiApiKey");
-            OpenAIAPI api = new OpenAIAPI(OPENAI_KEY);
-            return api;
-        }
+            var apiKey = Environment.GetEnvironmentVariable("openAiToken");
 
-        private static string UnicodeString(string text)
-        {
-            return Encoding.UTF8.GetString(Encoding.ASCII.GetBytes(text));
+            if (apiKey is null)
+            {
+                throw new ArgumentException("API Key not found. Please set API Key in the Environment Variables.");
+            }
+
+            return new OpenAIAPI(apiKey);
         }
     }
 }
