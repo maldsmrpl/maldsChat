@@ -30,19 +30,20 @@ namespace MaldsChat
                 if (update.Message.Text.Contains("/start"))
                 {
                     await telegramClient.SendTextMessageAsync(
-                    chatId: update.Message.Chat,
-                    text: $"Hello {update.Message.From.FirstName} {update.Message.From.LastName}!",
-                    replyToMessageId: update.Message.MessageId
+                        chatId: update.Message.Chat,
+                        text: $"Hello {update.Message.From.FirstName} {update.Message.From.LastName}!",
+                        parseMode: ParseMode.MarkdownV2,
+                        replyToMessageId: update.Message.MessageId
                     );
                 }
                 else if (update.Message.Text.Contains("/new"))
                 {
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
-                        text: $"New conversation created. Please ask your question.",
+                        text: $"New conversation created\\. Please ask your question\\.",
                         parseMode: ParseMode.MarkdownV2,
                         replyToMessageId: update.Message.MessageId
-                        );
+                    );
                 }
                 else
                 {
@@ -52,6 +53,26 @@ namespace MaldsChat
                     var responseObject = await chat.GetResponseFromChatbot();
 
                     string responseText = responseObject.ToString();
+
+                    // Escape special characters for Telegram's MarkdownV2 mode
+                    responseText = responseText.Replace("_", "\\_")
+                                               .Replace("*", "\\*")
+                                               .Replace("[", "\\[")
+                                               .Replace("]", "\\]")
+                                               .Replace("(", "\\(")
+                                               .Replace(")", "\\)")
+                                               .Replace("~", "\\~")
+                                               .Replace("`", "\\`")
+                                               .Replace(">", "\\>")
+                                               .Replace("#", "\\#")
+                                               .Replace("+", "\\+")
+                                               .Replace("-", "\\-")
+                                               .Replace("=", "\\=")
+                                               .Replace("|", "\\|")
+                                               .Replace("{", "\\{")
+                                               .Replace("}", "\\}")
+                                               .Replace(".", "\\.")
+                                               .Replace("!", "\\!");
 
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
