@@ -40,8 +40,7 @@ namespace MaldsChat
                 {
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
-                        text: $"New conversation created\\. Please ask your question\\.",
-                        parseMode: ParseMode.MarkdownV2,
+                        text: $"New conversation created. Please ask your question.",
                         replyToMessageId: update.Message.MessageId
                     );
                 }
