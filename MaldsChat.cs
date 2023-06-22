@@ -52,6 +52,13 @@ namespace MaldsChat
                     var responseObject = await chat.GetResponseFromChatbot();
 
                     string responseText = responseObject.ToString();
+                    responseText = responseText.
+                        Replace("_", "\\_").
+                        Replace("*", "\\*").
+                        Replace("[", "\\[").
+                        Replace("]", "\\]").
+                        Replace("(", "\\(").
+                        Replace(")", "\\)");
 
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
@@ -83,29 +90,6 @@ namespace MaldsChat
             APIAuthentication OPENAI_KEY = Environment.GetEnvironmentVariable("openAiApiKey");
             OpenAIAPI api = new OpenAIAPI(OPENAI_KEY);
             return api;
-        }
-
-        private static string RemoveMarkdownSpecialSymbols(string inputText)
-        {
-            string outputText = inputText.Replace("_", "\\_")
-                           .Replace("*", "\\*")
-                           .Replace("[", "\\[")
-                           .Replace("]", "\\]")
-                           .Replace("(", "\\(")
-                           .Replace(")", "\\)")
-                           .Replace("~", "\\~")
-                           .Replace("`", "\\`")
-                           .Replace(">", "\\>")
-                           .Replace("#", "\\#")
-                           .Replace("+", "\\+")
-                           .Replace("-", "\\-")
-                           .Replace("=", "\\=")
-                           .Replace("|", "\\|")
-                           .Replace("{", "\\{")
-                           .Replace("}", "\\}")
-                           .Replace(".", "\\.")
-                           .Replace("!", "\\!");
-            return outputText;
         }
     }
 }
