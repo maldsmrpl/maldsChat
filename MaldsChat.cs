@@ -52,29 +52,9 @@ namespace MaldsChat
 
                     string responseText = responseObject.ToString();
 
-                    // Escape special characters for Telegram's MarkdownV2 mode
-                    responseText = responseText.Replace("_", "\\_")
-                                               .Replace("*", "\\*")
-                                               .Replace("[", "\\[")
-                                               .Replace("]", "\\]")
-                                               .Replace("(", "\\(")
-                                               .Replace(")", "\\)")
-                                               .Replace("~", "\\~")
-                                               .Replace("`", "\\`")
-                                               .Replace(">", "\\>")
-                                               .Replace("#", "\\#")
-                                               .Replace("+", "\\+")
-                                               .Replace("-", "\\-")
-                                               .Replace("=", "\\=")
-                                               .Replace("|", "\\|")
-                                               .Replace("{", "\\{")
-                                               .Replace("}", "\\}")
-                                               .Replace(".", "\\.")
-                                               .Replace("!", "\\!");
-
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
-                        text: $"{responseText}",
+                        text: $"{RemoveMarkdownSpecialSymbols(responseText)}",
                         parseMode: ParseMode.MarkdownV2,
                         replyToMessageId: update.Message.MessageId
                         );
@@ -102,6 +82,29 @@ namespace MaldsChat
             APIAuthentication OPENAI_KEY = Environment.GetEnvironmentVariable("openAiApiKey");
             OpenAIAPI api = new OpenAIAPI(OPENAI_KEY);
             return api;
+        }
+
+        private static string RemoveMarkdownSpecialSymbols(string inputText)
+        {
+            string outputText = inputText.Replace("_", "\\_")
+                           .Replace("*", "\\*")
+                           .Replace("[", "\\[")
+                           .Replace("]", "\\]")
+                           .Replace("(", "\\(")
+                           .Replace(")", "\\)")
+                           .Replace("~", "\\~")
+                           .Replace("`", "\\`")
+                           .Replace(">", "\\>")
+                           .Replace("#", "\\#")
+                           .Replace("+", "\\+")
+                           .Replace("-", "\\-")
+                           .Replace("=", "\\=")
+                           .Replace("|", "\\|")
+                           .Replace("{", "\\{")
+                           .Replace("}", "\\}")
+                           .Replace(".", "\\.")
+                           .Replace("!", "\\!");
+            return outputText;
         }
     }
 }
