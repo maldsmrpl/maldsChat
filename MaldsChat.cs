@@ -12,7 +12,6 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using OpenAI_API;
 using System.Text;
-using OpenAI_API.Images;
 using System.Linq;
 using System.Net.Http;
 
@@ -58,7 +57,7 @@ namespace MaldsChat
 
         private static TelegramBotClient GetTelegramBotClient()
         {
-            var token = Environment.GetEnvironmentVariable("token");
+            var token = Environment.GetEnvironmentVariable("telegramToken");
 
             if (token is null)
             {
@@ -72,7 +71,7 @@ namespace MaldsChat
 
         private static OpenAIAPI GetOpenAiClient()
         {
-            APIAuthentication OPENAI_KEY = Environment.GetEnvironmentVariable("openAi");
+            APIAuthentication OPENAI_KEY = Environment.GetEnvironmentVariable("openAiApiKey");
             OpenAIAPI api = new OpenAIAPI(OPENAI_KEY);
             return api;
         }
