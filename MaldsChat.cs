@@ -31,7 +31,7 @@ namespace MaldsChat
                 {
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
-                        text: $"Hello {update.Message.From.FirstName} {update.Message.From.LastName}!"
+                        text: $"Hello {update.Message.From.FirstName} {update.Message.From.LastName}!",
                         replyToMessageId: update.Message.MessageId
                     );
                 }
