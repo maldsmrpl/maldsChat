@@ -54,8 +54,8 @@ namespace MaldsChat
 
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
-                        text: $"{RemoveMarkdownSpecialSymbols(responseText)}",
-                        parseMode: ParseMode.MarkdownV2,
+                        text: $"{responseText}",
+                        parseMode: ParseMode.Markdown,
                         replyToMessageId: update.Message.MessageId
                         );
                 }
