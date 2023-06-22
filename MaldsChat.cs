@@ -44,12 +44,13 @@ namespace MaldsChat
                     var chat = GetOpenAiClient().Chat.CreateConversation();
                     chat.AppendUserInput(update.Message.Text);
                     string response = await chat.GetResponseFromChatbot();
+
                     await telegramClient.SendTextMessageAsync(
-                    chatId: update.Message.Chat,
-                    text: $"{response}",
-                    parseMode: ParseMode.MarkdownV2,
-                    replyToMessageId: update.Message.MessageId
-                    );
+                        chatId: update.Message.Chat,
+                        text: $"{response}",
+                        parseMode: ParseMode.MarkdownV2,
+                        replyToMessageId: update.Message.MessageId
+                        );
                 }
             }
             return new OkResult();
