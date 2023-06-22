@@ -47,7 +47,7 @@ namespace MaldsChat
                     await telegramClient.SendTextMessageAsync(
                     chatId: update.Message.Chat,
                     text: $"{response}",
-                    parseMode: ParseMode.Html,
+                    parseMode: ParseMode.Markdown,
                     replyToMessageId: update.Message.MessageId
                     );
                 }
