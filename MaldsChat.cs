@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -10,11 +11,14 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using OpenAI_API;
+using OpenAI_API.Chat;
 
 namespace MaldsChat
 {
     public static class MaldsChat
     {
+        private static Dictionary<string, Conversation> Conversations = new Dictionary<string, Conversation>();
+
         [FunctionName("maldsChat")]
         public static async Task<IActionResult> Update(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
@@ -37,6 +41,8 @@ namespace MaldsChat
                 }
                 else if (update.Message.Text.Contains("/new"))
                 {
+                    Conversations[update.Message.Chat.Id.ToString()] = GetOpenAiClient().Chat.CreateConversation();
+
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
                         text: $"New conversation created. Please ask your question.",
@@ -45,19 +51,17 @@ namespace MaldsChat
                 }
                 else
                 {
-                    var chat = GetOpenAiClient().Chat.CreateConversation();
+                    if (!Conversations.TryGetValue(update.Message.Chat.Id.ToString(), out var chat))
+                    {
+                        chat = GetOpenAiClient().Chat.CreateConversation();
+                        Conversations[update.Message.Chat.Id.ToString()] = chat;
+                    }
+
                     chat.AppendUserInputWithName(update.Message.From.FirstName, update.Message.Text);
 
                     var responseObject = await chat.GetResponseFromChatbot();
 
                     string responseText = responseObject.ToString();
-                    //responseText = responseText.
-                    //    Replace("_", "\\_").
-                    //    Replace("*", "\\*").
-                    //    Replace("[", "\\[").
-                    //    Replace("]", "\\]").
-                    //    Replace("(", "\\(").
-                    //    Replace(")", "\\)");
 
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
