@@ -51,13 +51,13 @@ namespace MaldsChat
                     var responseObject = await chat.GetResponseFromChatbot();
 
                     string responseText = responseObject.ToString();
-                    responseText = responseText.
-                        Replace("_", "\\_").
-                        Replace("*", "\\*").
-                        Replace("[", "\\[").
-                        Replace("]", "\\]").
-                        Replace("(", "\\(").
-                        Replace(")", "\\)");
+                    //responseText = responseText.
+                    //    Replace("_", "\\_").
+                    //    Replace("*", "\\*").
+                    //    Replace("[", "\\[").
+                    //    Replace("]", "\\]").
+                    //    Replace("(", "\\(").
+                    //    Replace(")", "\\)");
 
                     await telegramClient.SendTextMessageAsync(
                         chatId: update.Message.Chat,
